@@ -20,13 +20,16 @@ namespace Gruppe3
                         rsa.print();
                         break;
                     case ConsoleKey.D2:
-                        System.Console.WriteLine("\nMD5 Hash");
+                        MD5 md5 = new MD5();
+                        md5.print();
                         break;
                     case ConsoleKey.D3:
-                        System.Console.WriteLine("\nKey generieren");
+                        KeyGen keyGen = new KeyGen();
+                        keyGen.print();
                         break;
                     case ConsoleKey.D4:
-                        System.Console.WriteLine("\nsymmetrische Verschlüsselung (?)");
+                        AES aes = new AES();
+                        aes.print();
                         break;
                     case ConsoleKey.Escape:
                         System.Console.WriteLine("\nAuf Wiedersehen!");
