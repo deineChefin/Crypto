@@ -12,7 +12,7 @@ namespace Gruppe3
         {
             while (true)
             {
-                Console.WriteLine("*** GRUPPE 3 *** \n 1) asymmetrische Verschlüsselung (RSA) \n2) MD5 Hash\n3) Key generieren \n4) symmetrische Verschlüsselung (?)\n\nAuswahl:");
+                Console.WriteLine("*** GRUPPE 3 *** \n1) asymmetrische Verschlüsselung (RSA) \n2) MD5 Hash\n3) Key generieren \n4) symmetrische Verschlüsselung (AES)\n\nAuswahl:" + "\n");
                 switch (Console.ReadKey().Key)
                 {
                     case ConsoleKey.D1:
@@ -29,7 +29,12 @@ namespace Gruppe3
                         break;
                     case ConsoleKey.D4:
                         AES aes = new AES();
-                        aes.print();
+                        Console.WriteLine("\n" + "Enter text that needs to be encrypted..");  
+                        string data = Console.ReadLine();  
+                        aes.EncryptAesManaged(data);
+
+                        // TODO: take any file as input and generate encrypted byte array
+
                         break;
                     case ConsoleKey.Escape:
                         System.Console.WriteLine("\nAuf Wiedersehen!");
