@@ -1,4 +1,3 @@
-.gitignore
 *.cdproj
-./obj/*
-./bin/*
+obj/
+bin/
