@@ -1,3 +1,4 @@
 *.cdproj
 obj/
 bin/
+.vscode/
