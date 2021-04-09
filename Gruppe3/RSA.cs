@@ -22,33 +22,73 @@ namespace Gruppe3
         
         Für Padding.. 
         https://en.wikipedia.org/wiki/Optimal_asymmetric_encryption_padding 
+
+        Tipps: 
+         - Zum Berechnen vom Multiplikativem Inversem nimmt man den erweiterten euklidicschen Algorithmus
+         - Wertebereiche genau definieren 
     */
 
     public class RSA
     {
+        /**
+            - LEHRBUCH RSA (nicht sicher, aber programmierbar)
+            - message muss kleiner als der Schlüssel! 
+            - wenn länger dann muss man das aufteilen -> hybride Lösungen 
+            - 
+        */
         public void print()
         {
-            Console.WriteLine("1) asymmetrische Verschlüsselung (RSA)");          
+            Console.WriteLine("1) asymmetrische Verschlüsselung (RSA)");
         }
 
-        public void keyGen(){
+
+        public void parGen()
+        {
+            // für zyklische GRuppe wichtig 
+            // einigen auf parametern 
+
+            // man braucht d und (e,N)
+            // p und q brauchen wir nicht mehr --> muss man wegschmeißen 
+            // so kennt man die Faktorisierung nicht mehr erechnen /erkennen 
+        }
+
+        public void keyGen()
+        {
             // schon von der anderen Aufgabe verwenden 
             KeyGen keygenerator = new KeyGen();
+            // private und public key ermitteln 
+
+            // Ablauf in den Folien beschrieben 
         }
 
-        public void hashen(string input){
+        public void hashen(string input)
+        {
             // schon von der anderen Aufgabe verwenden 
             MD5 md5 = new MD5();
+            // Wo brauche ich das im RSA? 
         }
 
-        public void encrypt()
+        public void encrypt(string enc, string sender)
         {
-
+            // c = m^e (mod N )
         }
 
-        public void decrypt()
+        public void decrypt(string dec, string empfaenger)
         {
+            // m = c^d (mod N)
+        }
 
+        // Für unterschiedliche Aufgaben, unterschiedliche Schlüssel 
+        // sonst würde man ein verschlüsselte Nachricht anstatt zu signieren, entschlüsseln! 
+        public void sign()
+        {
+            // s = m^d (mod N)
+            // quasi wie einen Tag dazu geben 
+        }
+
+        public void verify()
+        {
+            // m = s^e (mod N)
         }
     }
 }
