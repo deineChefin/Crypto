@@ -4,6 +4,10 @@ namespace Gruppe3
 {
     /*
     Links: 
+        https://studyflix.de/informatik/rsa-verschlusselung-1608 
+        https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.rsa?view=net-5.0 
+
+        https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.rsacryptoserviceprovider?view=net-5.0
 
         Pseudocode.. 
         https://www.educative.io/edpresso/what-is-the-rsa-algorithm 
@@ -26,6 +30,17 @@ namespace Gruppe3
         Tipps: 
          - Zum Berechnen vom Multiplikativem Inversem nimmt man den erweiterten euklidicschen Algorithmus
          - Wertebereiche genau definieren 
+    */
+
+    /* Steps (wie notiert) vergleichen mit seinen Unterlagen 
+        1. Schlüssel berechnen 
+        2. RSA verschlüsseln 
+        3. RSA entschlüsseln 
+    */
+
+    /*
+        - Wie viel dürfen wir ein schränken und was muss gehen? 
+        - Welche Art von Input ist zu erwarten? 
     */
 
     public class RSA
