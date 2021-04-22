@@ -12,6 +12,11 @@ namespace Gruppe3
             - hashen funktioniert irgendwie, ist interessant, aber noch weit nicht fertig oder richtig.. - ThomasSt
         */
 
+        /*
+        MD5 implementation in linux kernel
+        https://github.com/torvalds/linux/blob/master/crypto/md5.c
+        */
+
         public void HashMD5(string input) {
             byte[] input_bytes = Encoding.ASCII.GetBytes(input);
             byte[] hashed = ComputeHash(input_bytes);

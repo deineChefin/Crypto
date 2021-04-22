@@ -43,6 +43,11 @@ namespace Gruppe3
         - Welche Art von Input ist zu erwarten? 
     */
 
+    /*
+    RSA implementation in linux kernel
+    https://github.com/torvalds/linux/blob/master/crypto/rsa.c
+    */
+
     public class RSA
     {
         /**
