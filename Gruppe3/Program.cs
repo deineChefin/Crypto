@@ -24,9 +24,14 @@ namespace Gruppe3
                         md5.print();
                         break;
                     case ConsoleKey.D3:
-                        KeyGen keyGen = new KeyGen();
-                        keyGen.print();
+                        KeyGen password = new KeyGen();
+                        string key = password.Generate();
+                        Console.WriteLine(key);
+                        //password.print(); // you can remove this one -- but my collegue wrote it xD i don't want to destroy her code xD
                         break;
+                        // Password password = new Password();
+                        // string key = password.Generate();
+                        // Console.WriteLine(key);
                     case ConsoleKey.D4:
                         AES aes = new AES();
                         Console.WriteLine("\n" + "Enter text that needs to be encrypted..");  
