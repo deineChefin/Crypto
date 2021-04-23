@@ -22,6 +22,9 @@ namespace Gruppe3
                     case ConsoleKey.D2:
                         MD5 md5 = new MD5();
                         md5.print();
+                        Console.WriteLine("\n" + "Enter text to be hashed with MD5 algorithm..");
+                        string input = Console.ReadLine();
+                        md5.HashMD5(input);
                         break;
                     case ConsoleKey.D3:
                         KeyGen password = new KeyGen();

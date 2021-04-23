@@ -7,6 +7,11 @@ namespace Gruppe3
     public class AES
     {
         // https://www.c-sharpcorner.com/article/aes-encryption-in-c-sharp/
+
+        /*
+        AES implementation in linux kernel
+        https://github.com/torvalds/linux/blob/master/crypto/aes_generic.c
+        */
         
         public void EncryptAesManaged(string raw) {
             try {  
