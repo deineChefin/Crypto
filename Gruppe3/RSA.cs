@@ -1,15 +1,18 @@
 using System.IO;
-
+using System;
 namespace Gruppe3
 {
     public class RSA
     {
+        private Random random = new Random();
         // Welches Files 
-        private FileStream file = FileStream.Open("C:\\Users\\carin\\OneDrive\\Desktop\\test.txt", FileMode.OpenOrCreate);
+        // private FileStream fileStream = File.Open("C:\\Users\\carin\\OneDrive\\Desktop\\test.txt", FileMode.OpenOrCreate);
         // ent- oder verschlüsseln 
         public void print()
         {
             Console.WriteLine("1) asymmetrische Verschlüsselung (RSA)");
+            RSAKey key = this.genarateRSAKey();
+            key.print();
         }
 
         public void parGen()
@@ -22,28 +25,29 @@ namespace Gruppe3
             // so kennt man die Faktorisierung nicht mehr erechnen /erkennen 
         }
 
-        public void keyGen()
+        public RSAKey genarateRSAKey()
         {
+            // fixed params
             int q = 13; 
             int p = 47; 
             int N = p * q; 
             int phiN = (p-1)*(q-1);
-            Random random = new Math.Random();
+            int e;
             do {
                 // generates a number between 2 and phiN - 1 
-                int e = random.next(2, phiN);
+                e = random.Next(2, phiN);
             }
-            while (gcd(e, phiN) != 1);
+            while (gcd(e, phiN) > 1);
+        
+            // transform the formula e*d = 1 (mod phiN)
+            int d = (1 + phiN) / e;
             
-            do {
-                // generates a number between 2 and phiN - 1 
-                int d = random.next(2, phiN);
-            } while (e * d != (1 % phiN));
-
-            RSAKey key = new RSAKey(e, d, N);
+            return new RSAKey(e, d, N);
         }
-
-        // greatest common divior 
+           
+        /**
+            greatest common dividor 
+        */
         public int gcd(int i, int j) {
             while (j != 0) {
                 int oldJ = j; 

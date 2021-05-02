@@ -45,11 +45,11 @@ namespace Gruppe3
 
                         break;
                     case ConsoleKey.Escape:
-                        System.Console.WriteLine("\nAuf Wiedersehen!");
+                        System.Console.WriteLine("\n" + "Auf Wiedersehen!");
                         Environment.Exit(0);
                         break;
                     default:
-                        System.Console.WriteLine("\nEsc zum Beenden.");
+                        System.Console.WriteLine("\n" +"Esc zum Beenden.");
                         break;
                 }
             }
