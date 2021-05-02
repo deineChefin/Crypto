@@ -24,16 +24,18 @@ namespace Gruppe3
         public RSAKey genarateRSAKey()
         {
             // fixed params
-            int q = 13; 
-            int p = 11; 
+            int q = 23; 
+            int p = 19; 
+            // key must be greater than message --> a byte is max. 255 for our test 
             int N = p * q; 
             int phiN = (p-1)*(q-1);
             int e = 0;
             
-            while(gcd(e, phiN) != 1){
-               // generates a number e between 2 and phiN - 1 
-               e = random.Next(2, phiN);
+			do {
+                // generates a number e between 2 and phiN - 1
+                e = random.Next(2, phiN);
             }
+            while (!(gcd(e, phiN) == 1));
 
             int d = modInverse(e, phiN);   
 
@@ -107,34 +109,44 @@ namespace Gruppe3
         public void convertFileToChunks() {
             byte[] allBytes = File.ReadAllBytes(this.getFile());
             
-            foreach (byte chunk in allBytes)
+			// var utf8 = new UTF8Encoding();
+            // byte[] allBytes = utf8.GetBytes("šarže");
+            
+            System.Console.WriteLine("Chunk: {0} Enc: {1} Dec: {2}", 7, this.encrypt(7), this.decrypt(this.encrypt(7)));
+
+			foreach (byte chunk in allBytes)
             {
-                int encChunk = this.encrypt(chunk);
-                int decChunk = this.decrypt(encChunk);
+                BigInteger encChunk = this.encrypt(chunk);
+                BigInteger decChunk = this.decrypt(encChunk);
                 System.Console.WriteLine("Chunk: {0} Enc: {1} Dec: {2}", chunk, encChunk, decChunk);
             }
         }
 
         /**
            c = m^e (mod N )
+		   x**y mod |m|
         */
-        public int encrypt(int input)
-        {    // % isn't implemented properly (https://github.com/dotnet/docs/issues/4827, https://stackoverflow.com/questions/2691025/mathematical-modulus-in-c-sharp)
-            double pow = Math.Pow(input, this.Key.ePubKey);
-            double enc = (Math.Abs(pow * this.Key.NPubKey) + pow) % this.Key.NPubKey;
-            return (int)enc;
-        }
+        public BigInteger encrypt(int input)
+        {   
+			BigInteger mToPow = new BigInteger(input);
+			BigInteger exp = new BigInteger(this.Key.ePubKey);
+            BigInteger modN = new BigInteger(this.Key.NPubKey);
+            BigInteger modRes = BigInteger.ModPow(mToPow, exp, modN);
 
-        /**
+            return modRes;
+        }
+        /** 
            m = c^d (mod N)
         */
-        public int decrypt(int chiffre)
+        public BigInteger decrypt(BigInteger chiffre)
         {
-            double pow = Math.Pow(chiffre, this.Key.privateKey);
-            double dec = (Math.Abs(pow * this.Key.NPubKey) + pow) % this.Key.NPubKey; 
-            return (int)dec;
-        }
+			BigInteger cToPow = chiffre;
+            BigInteger exp = new BigInteger(this.Key.privateKey);
+            BigInteger modN = new BigInteger(this.Key.NPubKey);
+            BigInteger modRes = BigInteger.ModPow(cToPow, exp, modN);
 
+            return modRes;
+        }
         public void sign()
         {
             // s = m^d (mod N)
