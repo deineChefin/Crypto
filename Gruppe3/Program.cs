@@ -12,7 +12,7 @@ namespace Gruppe3
         {
             while (true)
             {
-                Console.WriteLine("*** GRUPPE 3 *** \n1) asymmetrische Verschlüsselung (RSA) \n2) MD5 Hash\n3) Key generieren \n4) symmetrische Verschlüsselung (AES)\n\nAuswahl:" + "\n");
+                Console.WriteLine("\n*** GRUPPE 3 *** \n1) asymmetrische Verschlüsselung (RSA) \n2) MD5 Hash\n3) Key generieren \n4) symmetrische Verschlüsselung (AES)\n\nAuswahl:" + "\n");
                 switch (Console.ReadKey().Key)
                 {
                     case ConsoleKey.D1:
