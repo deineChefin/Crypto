@@ -1,66 +1,16 @@
-using System;
+using System.IO;
 
 namespace Gruppe3
 {
-    /*
-    Links: 
-        https://studyflix.de/informatik/rsa-verschlusselung-1608 
-        https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.rsa?view=net-5.0 
-
-        https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.rsacryptoserviceprovider?view=net-5.0
-
-        Pseudocode.. 
-        https://www.educative.io/edpresso/what-is-the-rsa-algorithm 
-        https://eli.thegreenplace.net/2019/rsa-theory-and-implementation/ 
-        https://www.geeksforgeeks.org/rsa-algorithm-cryptography/
-        http://koclab.cs.ucsb.edu/teaching/cren/project/2018/Adamczyk+Magnussen.pdf 
-        http://www.crypto-uni.lu/jscoron/cours/mics3crypto/m3.pdf
-        https://scialert.net/fulltext/?doi=jas.2006.482.510 
-        https://de.wikipedia.org/wiki/RSA-Kryptosystem 
-
-        Stackoverflow.. 
-        https://stackoverflow.com/questions/7809490/rsa-elgamal-pseudocode
-
-        Für Primzahlen.. 
-        https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test 
-        
-        Für Padding.. 
-        https://en.wikipedia.org/wiki/Optimal_asymmetric_encryption_padding 
-
-        Tipps: 
-         - Zum Berechnen vom Multiplikativem Inversem nimmt man den erweiterten euklidicschen Algorithmus
-         - Wertebereiche genau definieren 
-    */
-
-    /* Steps (wie notiert) vergleichen mit seinen Unterlagen 
-        1. Schlüssel berechnen 
-        2. RSA verschlüsseln 
-        3. RSA entschlüsseln 
-    */
-
-    /*
-        - Wie viel dürfen wir ein schränken und was muss gehen? 
-        - Welche Art von Input ist zu erwarten? 
-    */
-
-    /*
-    RSA implementation in linux kernel
-    https://github.com/torvalds/linux/blob/master/crypto/rsa.c
-    */
-
     public class RSA
     {
-        /**
-            - LEHRBUCH RSA (nicht sicher, aber programmierbar)
-            - message muss kleiner als der Schlüssel! 
-            - wenn länger dann muss man das aufteilen -> hybride Lösungen 
-            - 
-        */
+        // Welches Files 
+        private FileStream file = FileStream.Open("C:\\Users\\carin\\OneDrive\\Desktop\\test.txt", FileMode.OpenOrCreate);
+        // ent- oder verschlüsseln 
         public void print()
         {
             Console.WriteLine("1) asymmetrische Verschlüsselung (RSA)");
         }
-
 
         public void parGen()
         {
@@ -74,14 +24,37 @@ namespace Gruppe3
 
         public void keyGen()
         {
-            // schon von der anderen Aufgabe verwenden 
-            KeyGen keygenerator = new KeyGen();
-            // private und public key ermitteln 
+            int q = 13; 
+            int p = 47; 
+            int N = p * q; 
+            int phiN = (p-1)*(q-1);
+            Random random = new Math.Random();
+            do {
+                // generates a number between 2 and phiN - 1 
+                int e = random.next(2, phiN);
+            }
+            while (gcd(e, phiN) != 1);
+            
+            do {
+                // generates a number between 2 and phiN - 1 
+                int d = random.next(2, phiN);
+            } while (e * d != (1 % phiN));
 
-            // Ablauf in den Folien beschrieben 
+            RSAKey key = new RSAKey(e, d, N);
         }
 
-        public void hashen(string input)
+        // greatest common divior 
+        public int gcd(int i, int j) {
+            while (j != 0) {
+                int oldJ = j; 
+                j = i % j; 
+                i = oldJ;
+            }
+
+            return i;
+        }
+        
+        public void hash(string input)
         {
             // schon von der anderen Aufgabe verwenden 
             MD5 md5 = new MD5();
@@ -93,7 +66,7 @@ namespace Gruppe3
             // c = m^e (mod N )
         }
 
-        public void decrypt(string dec, string empfaenger)
+        public void decrypt(string dec, string receiver)
         {
             // m = c^d (mod N)
         }
