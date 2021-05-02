@@ -3,6 +3,11 @@ using System;
 using System.Numerics;
 namespace Gruppe3
 {
+    /* Neben dem Verschlüssln von Files auch eine Möglichkeit 
+    1. Inhalt der Datei mit symmetrischen Algorithmus verschlüsseln
+    2. Schlüssel der symmetrischen Verschlüsselung Asymmetrisch verschlüsseln
+    3. In die erste Zeile oder letzte Zeile der Datei den verschlüsselten Schlüssel packen.
+    */
     public class RSA
     {
         private Random random = new Random();
@@ -17,8 +22,9 @@ namespace Gruppe3
         {
             Console.WriteLine(" RSA");
             this.Key.print();
-            this.convertFileToChunks();
-            // ent- oder verschlüsseln 
+            byte[] chiffre = this.convertFileToChunks();
+            this.convertChunksToFile(chiffre);
+            // ent- oder verschlüsseln auswählen
         }
 
         public RSAKey genarateRSAKey()
@@ -92,11 +98,13 @@ namespace Gruppe3
         }
 
         public string getFile() {    
+            // file richtig auswählen 
             string path = "C:\\Users\\carin\\OneDrive\\Desktop\\test.txt";
             return path;
         }
 
         public void convertChunksToFile(byte[] chiffre) {
+            // Files öffnen testen 
             byte[] encrypted = new byte[chiffre.Length]; 
             for (var i = 0; i < chiffre.Length; i++)
             {
@@ -106,20 +114,19 @@ namespace Gruppe3
             File.WriteAllBytes(this.getFile()+"-enc", encrypted);
         }
 
-        public void convertFileToChunks() {
-            byte[] allBytes = File.ReadAllBytes(this.getFile());
-            
-			// var utf8 = new UTF8Encoding();
-            // byte[] allBytes = utf8.GetBytes("šarže");
-            
-            System.Console.WriteLine("Chunk: {0} Enc: {1} Dec: {2}", 7, this.encrypt(7), this.decrypt(this.encrypt(7)));
-
-			foreach (byte chunk in allBytes)
+        public byte[] convertFileToChunks() {
+            byte[] allBytes = File.ReadAllBytes(this.getFile());             
+            // System.Console.WriteLine("Chunk: {0} Enc: {1} Dec: {2}", 7, this.encrypt(7), this.decrypt(this.encrypt(7)));
+            byte[] chiffre = new byte[allBytes.Length]; 
+            for (var i = 0; i < allBytes.Length; i++)
             {
-                BigInteger encChunk = this.encrypt(chunk);
-                BigInteger decChunk = this.decrypt(encChunk);
-                System.Console.WriteLine("Chunk: {0} Enc: {1} Dec: {2}", chunk, encChunk, decChunk);
+                BigInteger encChunk = this.encrypt(allBytes[i]);
+                // chiffre[i] = (byte)this.encrypt(allBytes[i]);
+                // BigInteger decChunk = this.decrypt(encChunk);
+                System.Console.WriteLine("Chunk: {0} Enc: {1}", allBytes[i], encChunk);
             }
+
+            return chiffre;
         }
 
         /**
