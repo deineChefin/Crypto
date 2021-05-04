@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System;
 using System.Numerics;
@@ -7,31 +8,70 @@ namespace Gruppe3
     1. Inhalt der Datei mit symmetrischen Algorithmus verschlüsseln
     2. Schlüssel der symmetrischen Verschlüsselung Asymmetrisch verschlüsseln
     3. In die erste Zeile oder letzte Zeile der Datei den verschlüsselten Schlüssel packen.
+        extgcg | modinvers 
+        https://www.hsg-kl.de/faecher/inf/krypto/rsa/modinv/index.php 
+        https://www.mathe-online.at/materialien/Franz.Embacher/files/RSA/Euklid.html 
     */
     public class RSA
     {
         private Random random = new Random();
-
         public RSAKey Key {get;}
+
 
         public RSA() {
             this.Key = this.genarateRSAKey();
+            this.print();
+            this.start();                       
         }
 
         public void print()
         {
             Console.WriteLine(" RSA");
             this.Key.print();
-            byte[] chiffre = this.convertFileToChunks();
-            this.convertChunksToFile(chiffre);
-            // ent- oder verschlüsseln auswählen
+        }
+
+        /**
+            default mode is true for encryption 
+            only pressing d will lead to decryption 
+        */
+        public bool getMode() {
+            System.Console.WriteLine("Press d for decyrption - everything else will be encryption");
+            ConsoleKey input = Console.ReadKey().Key; 
+            if (input == ConsoleKey.D) {
+                return false; 
+            }
+            
+            return true;
+        }
+
+        public void start () {
+            if (this.getMode()) {
+                System.Console.WriteLine("encrypt");
+                byte[] chunks = this.convertFileToChunks();            
+                byte[] chiffre = new byte[chunks.Length]; 
+                for (var i = 0; i < chunks.Length; i++)
+                {
+                    // chiffre[i] = (byte) this.encrypt(chunks[i]);
+                    System.Console.WriteLine("Chunk: {0} Enc: {1}", chunks[i], this.encrypt(chunks[i]));
+                }
+            } else {
+                System.Console.WriteLine("decrypt");
+                byte[] chiffre = this.convertFileToChunks();
+                byte[] encrypted = new byte[chiffre.Length]; 
+                for (var i = 0; i < chiffre.Length; i++)
+                {
+                    encrypted[i] = (byte)this.decrypt(chiffre[i]);
+                }
+
+                string path = this.convertChunksToFile(chiffre);
+            } 
         }
 
         public RSAKey genarateRSAKey()
         {
             // fixed params
-            int q = 23; 
-            int p = 19; 
+            int q = 997; 
+            int p = 929; 
             // key must be greater than message --> a byte is max. 255 for our test 
             int N = p * q; 
             int phiN = (p-1)*(q-1);
@@ -41,11 +81,11 @@ namespace Gruppe3
                 // generates a number e between 2 and phiN - 1
                 e = random.Next(2, phiN);
             }
-            while (!(gcd(e, phiN) == 1));
+            while (gcd(e, phiN) != 1);
 
-            int d = modInverse(e, phiN);   
+            int d = this.modInverse(e, phiN);   
 
-            return new RSAKey(e, d, N);
+            return new RSAKey(e, (int)d, N);
         }
            
         /**
@@ -62,27 +102,28 @@ namespace Gruppe3
         }
 
     	/**
+            private key = d = (1 % phiN) / e
             extended gcd
             calculates the greatest common divisor g of two numbers a and b 
             and additionally the coefficients u and v of a representation of g as an integer linear combination
         */
-        public int modInverse(int a, int m) {
-			int m0 = m;
+        public int modInverse(int e, int phiN) {
+			int phiN0 = phiN;
+            int e0 = e; 
         	int y = 0, x = 1;
  
-        	if (m == 1)
+        	if (phiN == 1)
             	return 0;
  
-        	while (a > 1) {
+        	while (e > 1 && phiN != 0) {
             	// q is quotient
-            	int q = a / m;
+            	int q = e / phiN;
+            	int t = phiN;
  
-            	int t = m;
- 
-            	// m is remainder now, process
+            	// phiN is remainder now, process
             	// same as Euclid's algo
-            	m = a % m;
-            	a = t;
+            	phiN = e % phiN;
+            	e = t;
             	t = y;
  
             	// Update x and y
@@ -90,43 +131,49 @@ namespace Gruppe3
             	x = t;
         	}
  
-        	// Make x positive
-        	if (x < 0)
-            	x += m0;
- 
+        	// Make x positive, adding phiN to make the result positive does not falsify the result, 
+            // since the result is in the residual class ring mod phiN
+        	if (x < 0) {
+                x += phiN0;
+            }
+
         	return x;
         }
 
-        public string getFile() {    
-            // file richtig auswählen 
-            string path = "C:\\Users\\carin\\OneDrive\\Desktop\\test.txt";
+        /**
+            if the default path (for testing) doesn't exit 
+            check if the file exists 
+        */
+        public string getFilepath() {    
+            string path = "C:\\Users\\Carina\\Desktop\\test.txt"; // Standrechner 
+            // string path = "C:\\Users\\carin\\OneDrive\\Desktop\\test.txt"; // Laptop 
+            while (!File.Exists(path)){
+                System.Console.WriteLine("Please enter the file path: ");
+                path = Console.ReadLine();
+                
+                if (path.StartsWith('.')) {
+                    path = Path.GetRelativePath(Directory.GetCurrentDirectory(), path);
+                }
+
+                if (File.Exists(path)) {
+                    return path;
+                }
+            } 
+
             return path;
         }
 
-        public void convertChunksToFile(byte[] chiffre) {
-            // Files öffnen testen 
-            byte[] encrypted = new byte[chiffre.Length]; 
-            for (var i = 0; i < chiffre.Length; i++)
-            {
-                encrypted[i] = (byte)this.decrypt(chiffre[i]);
-            }
-
-            File.WriteAllBytes(this.getFile()+"-enc", encrypted);
+        public string convertChunksToFile(byte[] allBytes) {
+            // Files öffnen testen
+            string path = this.getFilepath()+"-enc";
+            File.WriteAllBytes(path, allBytes);
+            return path; 
         }
 
         public byte[] convertFileToChunks() {
-            byte[] allBytes = File.ReadAllBytes(this.getFile());             
-            // System.Console.WriteLine("Chunk: {0} Enc: {1} Dec: {2}", 7, this.encrypt(7), this.decrypt(this.encrypt(7)));
-            byte[] chiffre = new byte[allBytes.Length]; 
-            for (var i = 0; i < allBytes.Length; i++)
-            {
-                BigInteger encChunk = this.encrypt(allBytes[i]);
-                // chiffre[i] = (byte)this.encrypt(allBytes[i]);
-                // BigInteger decChunk = this.decrypt(encChunk);
-                System.Console.WriteLine("Chunk: {0} Enc: {1}", allBytes[i], encChunk);
-            }
-
-            return chiffre;
+            string path = this.getFilepath();
+            byte[] allBytes = File.ReadAllBytes(path);             
+            return allBytes;
         }
 
         /**
@@ -142,6 +189,7 @@ namespace Gruppe3
 
             return modRes;
         }
+        
         /** 
            m = c^d (mod N)
         */
@@ -154,12 +202,19 @@ namespace Gruppe3
 
             return modRes;
         }
+
+        /**
+            TODO 
+        */
         public void sign()
         {
             // s = m^d (mod N)
             // quasi wie einen Tag dazu geben 
         }
 
+        /**
+            TODO 
+        */
         public void verify()
         {
             // m = s^e (mod N)
