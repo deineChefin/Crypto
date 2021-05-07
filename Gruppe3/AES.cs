@@ -13,31 +13,31 @@ namespace Gruppe3
         https://github.com/torvalds/linux/blob/master/crypto/aes_generic.c
         */
         
-        public void EncryptAesManaged(string raw) {
+        public void encryptAesManaged(string raw) {
             try {  
                 // Create Aes that generates a new key and initialization vector (IV).    
                 // Same key must be used in encryption and decryption    
                 using(AesManaged aes = new AesManaged()) {  
                     // Encrypt string    
-                    byte[] encrypted = Encrypt(raw, aes.Key, aes.IV);  
+                    byte[] encrypted = encrypt(raw, aes.Key, aes.IV);  
                     // Print encrypted string    
-                    //Console.WriteLine($ "Encrypted data: {System.Text.Encoding.UTF8.GetString(encrypted)}");  
                     Console.WriteLine("Encrypted data: ");
                     Console.WriteLine(System.Text.Encoding.UTF8.GetString(encrypted));
                     // Decrypt the bytes to a string.    
-                    string decrypted = Decrypt(encrypted, aes.Key, aes.IV);  
-                    // Print decrypted string. It should be same as raw data    
-                    //Console.WriteLine($ "Decrypted data: {decrypted}");  
+                    string decrypted = decrypt(encrypted, aes.Key, aes.IV);  
+                    // Print decrypted string. It should be same as raw data      
                     Console.WriteLine("Decrypted data: ");
                     Console.WriteLine(decrypted);
                 }  
             } catch (Exception exp) {  
                 Console.WriteLine(exp.Message);  
             }  
+            
             Console.WriteLine("\n" + "Press any key to resume to the menu!");
             Console.ReadKey();  
         }  
-        static byte[] Encrypt(string plainText, byte[] Key, byte[] IV) {  
+
+        static byte[] encrypt(string plainText, byte[] Key, byte[] IV) {  
             byte[] encrypted;  
             // Create a new AesManaged.    
             using(AesManaged aes = new AesManaged()) {  
@@ -59,7 +59,8 @@ namespace Gruppe3
             // Return encrypted data    
             return encrypted;  
         }  
-        static string Decrypt(byte[] cipherText, byte[] Key, byte[] IV) {  
+
+        static string decrypt(byte[] cipherText, byte[] Key, byte[] IV) {  
             string plaintext = null;  
             // Create AesManaged    
             using(AesManaged aes = new AesManaged()) {  
@@ -75,25 +76,9 @@ namespace Gruppe3
                     }  
                 }  
             }  
+
             return plaintext;  
-        }
+        }     
 
-
-
-
-         public void print()
-        {
-            Console.WriteLine("4) symmetrische Verschlüsselung (AES)");          
-        }
-        
-        // public void encrypt()
-        // {
-
-        // }
-
-        // public void decrypt()
-        // {
-
-        // }
     }
 }

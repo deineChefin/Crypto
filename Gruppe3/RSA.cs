@@ -17,11 +17,9 @@ namespace Gruppe3
         private Random random = new Random();
         public RSAKey Key {get;}
 
-
         public RSA() {
             this.Key = this.genarateRSAKey();
-            this.print();
-            this.start();                       
+            this.print();                       
         }
 
         public void print()
@@ -147,7 +145,7 @@ namespace Gruppe3
         public string getFilepath() {    
             string path = "C:\\Users\\Carina\\Desktop\\test.txt"; // Standrechner 
             // string path = "C:\\Users\\carin\\OneDrive\\Desktop\\test.txt"; // Laptop 
-            while (!File.Exists(path)){
+            while (!File.Exists(path)) {
                 System.Console.WriteLine("Please enter the file path: ");
                 path = Console.ReadLine();
                 

@@ -10,11 +10,6 @@ namespace Gruppe3
 
     public class KeyGen
     {
-         public void print()
-        {
-            Console.WriteLine("3) Generate key (for RSA)");
-        }
-
         //public void genKey(string input){ }
         private readonly string lowercase = "abcdefghijklmnopqrstuvwxyz";
         private readonly string uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
