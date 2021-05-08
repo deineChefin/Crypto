@@ -29,7 +29,7 @@ namespace Gruppe3
         */
         public bool getMode() {
             System.Console.WriteLine("Press d for decyrption - everything else will be encryption");
-            ConsoleKey input = Console.ReadKey().Key; 
+            ConsoleKey input = Console.ReadKey(true).Key; // with the true parameter the input isn't displayed in the command line
             if (input == ConsoleKey.D) {
                 return false; 
             }
@@ -39,31 +39,33 @@ namespace Gruppe3
 
         public void start () {
             if (this.Mode) { // encrypt 
-                char[] chunks = this.convertTextFileToChunks();            
+                int[] chunks = this.convertTextFileToChunks();            
                 BigInteger[] chiffre = new BigInteger[chunks.Length]; 
                 for (var i = 0; i < chunks.Length; i++)
                 {
                     chiffre[i] = this.encrypt(chunks[i]);
                 }
 
-                string path = this.convertChunksToTextFile(chiffre);
+                this.convertChunksToTextFile(chiffre);
             } else { // decrypt
-                char[] chiffre = this.convertTextFileToChunks();
+                int[] chiffre = this.convertTextFileToChunks();
                 BigInteger[] encrypted = new BigInteger[chiffre.Length]; 
                 for (var i = 0; i < chiffre.Length; i++)
                 {
+                    System.Console.WriteLine(chiffre[i]);
                     encrypted[i] = this.decrypt(chiffre[i]);
+                    System.Console.WriteLine(encrypted[i]);
                 }
 
-                string path = this.convertChunksToTextFile(encrypted);
+                this.convertChunksToTextFile(encrypted);
             } 
         }
 
         public RSAKey genarateRSAKey()
         {
             // to be sure p and q are not the same with different ranges (incl. values)
-            int q = this.getRandomPrimenumber(300, 599); 
-            int p = this.getRandomPrimenumber(600, 899); 
+            int q = this.getRandomPrimenumber(3, 50); 
+            int p = this.getRandomPrimenumber(50, 100); 
             int N = p * q; 
             int phiN = (p-1)*(q-1); // eulers phi function 
             int e = 0;
@@ -170,14 +172,10 @@ namespace Gruppe3
         */
         public string getFilepath() {    
             // string path = "C:\\Users\\Carina\\Desktop\\test.txt"; // Standrechner 
-            string path = "C:\\Users\\carin\\OneDrive\\Desktop\\test.txt-enc"; // Laptop 
+            string path = @"C:\Users\carin\OneDrive\Desktop\test.txt"; // Laptop 
             while (!File.Exists(path)) {
-                System.Console.WriteLine("Please enter the file path: ");
+                System.Console.WriteLine("Please enter the complete file path: ");
                 path = Console.ReadLine();
-                
-                if (path.StartsWith('.')) {
-                    path = Path.GetRelativePath(Directory.GetCurrentDirectory(), path);
-                }
 
                 if (File.Exists(path)) {
                     return path;
@@ -188,29 +186,28 @@ namespace Gruppe3
         }
 
         public string convertChunksToTextFile(BigInteger[] chunks) {
-            // Files öffnen testen
-            string allLines = String.Empty;  
+            string[] allLines = new string[chunks.Length];  
             for (var i = 0; i < chunks.Length; i++)
-            {   
-                
-                allLines += chunks[i].ToString(); 
+            {
+                // System.Console.WriteLine(chunks[i]);
+                allLines[i] = chunks[i].ToString(); 
             }
 
             string path = this.Mode ? "gruppe3-enc.txt" : "gruppe3-dec.txt";
             // per default the file is created in the current directory 
-            File.WriteAllText(path, allLines, Encoding.ASCII);
+            File.WriteAllLines(path, allLines, Encoding.ASCII);
             return path; 
         }
 
-        public char[] convertTextFileToChunks() {
+        public int[] convertTextFileToChunks() {
             string allText = File.ReadAllText(this.getFilepath());
-            string chunks = String.Empty;     
+            int[] chunks = new int[allText.Length];     
             for (var j = 0; j < allText.Length; j++)
             {
-                chunks += allText[j];
+                chunks[j] = (int)allText[j];
             }    
- 
-            return chunks.ToCharArray();
+
+            return chunks;
         }
 
         /**
@@ -218,13 +215,9 @@ namespace Gruppe3
 		   x**y mod |m|
         */
         public BigInteger encrypt(BigInteger input)
-        {   
-			BigInteger mToPow = input;
-			BigInteger exp = new BigInteger(this.Key.EPubKey);
-            BigInteger modN = new BigInteger(this.Key.NPubKey);
-            BigInteger modRes = BigInteger.ModPow(mToPow, exp, modN);
-
-            return modRes;
+        { 
+            // Performs modulus division on a number raised to the power of another number
+            return BigInteger.ModPow(input, this.Key.EPubKey, this.Key.NPubKey);
         }
         
         /** 
@@ -232,12 +225,8 @@ namespace Gruppe3
         */
         public BigInteger decrypt(BigInteger chiffre)
         {
-			BigInteger cToPow = chiffre;
-            BigInteger exp = new BigInteger(this.Key.PrivateKey);
-            BigInteger modN = new BigInteger(this.Key.NPubKey);
-            BigInteger modRes = BigInteger.ModPow(cToPow, exp, modN);
-
-            return modRes;
+            // Performs modulus division on a number raised to the power of another number.
+            return BigInteger.ModPow(chiffre, this.Key.PrivateKey, this.Key.NPubKey);
         }
 
         /**
