@@ -1,31 +1,26 @@
-using System.Collections.Generic;
-using System.IO;
 using System;
+using System.IO;
 using System.Numerics;
+using System.Text;
 namespace Gruppe3
 {
-    /* Neben dem Verschlüssln von Files auch eine Möglichkeit 
-    1. Inhalt der Datei mit symmetrischen Algorithmus verschlüsseln
-    2. Schlüssel der symmetrischen Verschlüsselung Asymmetrisch verschlüsseln
-    3. In die erste Zeile oder letzte Zeile der Datei den verschlüsselten Schlüssel packen.
-        extgcg | modinvers 
-        https://www.hsg-kl.de/faecher/inf/krypto/rsa/modinv/index.php 
-        https://www.mathe-online.at/materialien/Franz.Embacher/files/RSA/Euklid.html 
-    */
     public class RSA
     {
-        private Random random = new Random();
+        // Random element should only be generated once
+        private readonly Random random = new Random();
         public RSAKey Key {get;}
+        public bool Mode {get; set; }
 
         public RSA() {
             this.Key = this.genarateRSAKey();
-            this.print();                       
+            this.Mode = this.getMode();                     
+            this.print();
         }
 
         public void print()
         {
-            Console.WriteLine(" RSA");
             this.Key.print();
+            Console.WriteLine("Mode is enc {0} | dec {1}", this.Mode, !this.Mode);
         }
 
         /**
@@ -43,56 +38,87 @@ namespace Gruppe3
         }
 
         public void start () {
-            if (this.getMode()) {
-                System.Console.WriteLine("encrypt");
-                byte[] chunks = this.convertFileToChunks();            
-                byte[] chiffre = new byte[chunks.Length]; 
+            if (this.Mode) { // encrypt 
+                char[] chunks = this.convertTextFileToChunks();            
+                BigInteger[] chiffre = new BigInteger[chunks.Length]; 
                 for (var i = 0; i < chunks.Length; i++)
                 {
-                    // chiffre[i] = (byte) this.encrypt(chunks[i]);
-                    System.Console.WriteLine("Chunk: {0} Enc: {1}", chunks[i], this.encrypt(chunks[i]));
-                }
-            } else {
-                System.Console.WriteLine("decrypt");
-                byte[] chiffre = this.convertFileToChunks();
-                byte[] encrypted = new byte[chiffre.Length]; 
-                for (var i = 0; i < chiffre.Length; i++)
-                {
-                    encrypted[i] = (byte)this.decrypt(chiffre[i]);
+                    chiffre[i] = this.encrypt(chunks[i]);
                 }
 
-                string path = this.convertChunksToFile(chiffre);
+                string path = this.convertChunksToTextFile(chiffre);
+            } else { // decrypt
+                char[] chiffre = this.convertTextFileToChunks();
+                BigInteger[] encrypted = new BigInteger[chiffre.Length]; 
+                for (var i = 0; i < chiffre.Length; i++)
+                {
+                    encrypted[i] = this.decrypt(chiffre[i]);
+                }
+
+                string path = this.convertChunksToTextFile(encrypted);
             } 
         }
 
         public RSAKey genarateRSAKey()
         {
-            // fixed params
-            int q = 997; 
-            int p = 929; 
-            // key must be greater than message --> a byte is max. 255 for our test 
+            // to be sure p and q are not the same with different ranges (incl. values)
+            int q = this.getRandomPrimenumber(300, 599); 
+            int p = this.getRandomPrimenumber(600, 899); 
             int N = p * q; 
-            int phiN = (p-1)*(q-1);
+            int phiN = (p-1)*(q-1); // eulers phi function 
             int e = 0;
             
 			do {
                 // generates a number e between 2 and phiN - 1
                 e = random.Next(2, phiN);
-            }
-            while (gcd(e, phiN) != 1);
+            } while (gcd(e, phiN) != 1);
 
             int d = this.modInverse(e, phiN);   
 
             return new RSAKey(e, (int)d, N);
         }
            
+
+        /**
+            return a prime number in the given boundries 
+        */ 
+        public int getRandomPrimenumber(int lower = 0, int upper = 300) {
+            int prime = 0;
+            do { 
+                // lower is incl, upper is excl
+                prime = this.random.Next(lower, upper + 1); 
+            } while (!this.isPrime(prime)); 
+
+            return prime; 
+        }   
+
+        /**
+            check if a number is a prime number
+        */
+        public bool isPrime(int n)
+        {
+            // n must be positive 
+            if (n <= 1) {
+                return false;
+            }
+            
+            // Check from 2 to n-1
+            for (int i = 2; i < n; i++) {
+                if (n % i == 0) {
+                    return false;
+                }
+            } 
+    
+            return true;
+    }
+
         /**
             greatest common dividor 
         */
         public int gcd(int i, int j) {
             while (j != 0) {
                 int oldJ = j; 
-                j =  (Math.Abs(i * j) + i) % j;
+                j =  i % oldJ; // (Math.Abs(i * j) + i) % j;
                 i = oldJ;
             }
 
@@ -104,24 +130,24 @@ namespace Gruppe3
             extended gcd
             calculates the greatest common divisor g of two numbers a and b 
             and additionally the coefficients u and v of a representation of g as an integer linear combination
+            a = e, n = phiN 
         */
-        public int modInverse(int e, int phiN) {
-			int phiN0 = phiN;
-            int e0 = e; 
+        public int modInverse(int a, int n) {
+			int n0 = n;
+            int a0 = a; 
         	int y = 0, x = 1;
  
-        	if (phiN == 1)
+        	if (n == 1)
             	return 0;
  
-        	while (e > 1 && phiN != 0) {
+        	while (a > 1) {
             	// q is quotient
-            	int q = e / phiN;
-            	int t = phiN;
+            	int q = a / n;
+            	int t = n;
  
-            	// phiN is remainder now, process
-            	// same as Euclid's algo
-            	phiN = e % phiN;
-            	e = t;
+            	// phiN is remainder now, process, same as Euclid's algo
+            	n = a % n;
+            	a = t;
             	t = y;
  
             	// Update x and y
@@ -132,7 +158,7 @@ namespace Gruppe3
         	// Make x positive, adding phiN to make the result positive does not falsify the result, 
             // since the result is in the residual class ring mod phiN
         	if (x < 0) {
-                x += phiN0;
+                x += n0;
             }
 
         	return x;
@@ -143,8 +169,8 @@ namespace Gruppe3
             check if the file exists 
         */
         public string getFilepath() {    
-            string path = "C:\\Users\\Carina\\Desktop\\test.txt"; // Standrechner 
-            // string path = "C:\\Users\\carin\\OneDrive\\Desktop\\test.txt"; // Laptop 
+            // string path = "C:\\Users\\Carina\\Desktop\\test.txt"; // Standrechner 
+            string path = "C:\\Users\\carin\\OneDrive\\Desktop\\test.txt-enc"; // Laptop 
             while (!File.Exists(path)) {
                 System.Console.WriteLine("Please enter the file path: ");
                 path = Console.ReadLine();
@@ -161,27 +187,40 @@ namespace Gruppe3
             return path;
         }
 
-        public string convertChunksToFile(byte[] allBytes) {
+        public string convertChunksToTextFile(BigInteger[] chunks) {
             // Files öffnen testen
-            string path = this.getFilepath()+"-enc";
-            File.WriteAllBytes(path, allBytes);
+            string allLines = String.Empty;  
+            for (var i = 0; i < chunks.Length; i++)
+            {   
+                
+                allLines += chunks[i].ToString(); 
+            }
+
+            string path = this.Mode ? "gruppe3-enc.txt" : "gruppe3-dec.txt";
+            // per default the file is created in the current directory 
+            File.WriteAllText(path, allLines, Encoding.ASCII);
             return path; 
         }
 
-        public byte[] convertFileToChunks() {
-            string path = this.getFilepath();
-            byte[] allBytes = File.ReadAllBytes(path);             
-            return allBytes;
+        public char[] convertTextFileToChunks() {
+            string allText = File.ReadAllText(this.getFilepath());
+            string chunks = String.Empty;     
+            for (var j = 0; j < allText.Length; j++)
+            {
+                chunks += allText[j];
+            }    
+ 
+            return chunks.ToCharArray();
         }
 
         /**
-           c = m^e (mod N )
+           c = m^e (mod N)
 		   x**y mod |m|
         */
-        public BigInteger encrypt(int input)
+        public BigInteger encrypt(BigInteger input)
         {   
-			BigInteger mToPow = new BigInteger(input);
-			BigInteger exp = new BigInteger(this.Key.ePubKey);
+			BigInteger mToPow = input;
+			BigInteger exp = new BigInteger(this.Key.EPubKey);
             BigInteger modN = new BigInteger(this.Key.NPubKey);
             BigInteger modRes = BigInteger.ModPow(mToPow, exp, modN);
 
@@ -194,7 +233,7 @@ namespace Gruppe3
         public BigInteger decrypt(BigInteger chiffre)
         {
 			BigInteger cToPow = chiffre;
-            BigInteger exp = new BigInteger(this.Key.privateKey);
+            BigInteger exp = new BigInteger(this.Key.PrivateKey);
             BigInteger modN = new BigInteger(this.Key.NPubKey);
             BigInteger modRes = BigInteger.ModPow(cToPow, exp, modN);
 
@@ -203,15 +242,17 @@ namespace Gruppe3
 
         /**
             TODO 
+            like encrypt 
         */
         public void sign()
         {
             // s = m^d (mod N)
-            // quasi wie einen Tag dazu geben 
+            // adding Tag 
         }
 
         /**
             TODO 
+            like decrypt 
         */
         public void verify()
         {
