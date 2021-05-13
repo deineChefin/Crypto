@@ -1,84 +1,96 @@
 using System;
 using System.IO;  
 using System.Security.Cryptography;
+using System.Text;
 
 namespace Gruppe3
 {
     public class AES
     {
-        // https://www.c-sharpcorner.com/article/aes-encryption-in-c-sharp/
+        private const int BufferSizeInBytes = 16 * 1024;
 
-        /*
-        AES implementation in linux kernel
-        https://github.com/torvalds/linux/blob/master/crypto/aes_generic.c
-        */
-        
-        public void encryptAesManaged(string raw) {
-            try {  
-                // Create Aes that generates a new key and initialization vector (IV).    
-                // Same key must be used in encryption and decryption    
-                using(AesManaged aes = new AesManaged()) {  
-                    // Encrypt string    
-                    byte[] encrypted = encrypt(raw, aes.Key, aes.IV);  
-                    // Print encrypted string    
-                    Console.WriteLine("Encrypted data: ");
-                    Console.WriteLine(System.Text.Encoding.UTF8.GetString(encrypted));
-                    // Decrypt the bytes to a string.    
-                    string decrypted = decrypt(encrypted, aes.Key, aes.IV);  
-                    // Print decrypted string. It should be same as raw data      
-                    Console.WriteLine("Decrypted data: ");
-                    Console.WriteLine(decrypted);
-                }  
-            } catch (Exception exp) {  
-                Console.WriteLine(exp.Message);  
-            }  
-            
-            Console.WriteLine("\n" + "Press any key to resume to the menu!");
-            Console.ReadKey();  
-        }  
+        // you can have a number of other lengths but these will do
+        private const int RequiredKeyLengthInBytes = 32;
+        private const int RequiredInitialisationVectorLengthInBytes = 16;
 
-        static byte[] encrypt(string plainText, byte[] Key, byte[] IV) {  
-            byte[] encrypted;  
-            // Create a new AesManaged.    
-            using(AesManaged aes = new AesManaged()) {  
-                // Create encryptor    
-                ICryptoTransform encryptor = aes.CreateEncryptor(Key, IV);  
-                // Create MemoryStream    
-                using(MemoryStream ms = new MemoryStream()) {  
-                    // Create crypto stream using the CryptoStream class. This class is the key to encryption    
-                    // and encrypts and decrypts data from any given stream. In this case, we will pass a memory stream    
-                    // to encrypt    
-                    using(CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write)) {  
-                        // Create StreamWriter and write data to a stream    
-                        using(StreamWriter sw = new StreamWriter(cs))  
-                        sw.Write(plainText);  
-                        encrypted = ms.ToArray();  
-                    }  
-                }  
-            }  
-            // Return encrypted data    
-            return encrypted;  
-        }  
+        public void EncryptFile(string inputFile, string outputFile, string key, string initialisationVector)
+        {
+            using (RijndaelManaged aes = new RijndaelManaged())
+            {
+                byte[] keyBytes = ASCIIEncoding.UTF8.GetBytes(key);
+                byte[] initialisationVectorBytes = ASCIIEncoding.UTF8.GetBytes(initialisationVector);
 
-        static string decrypt(byte[] cipherText, byte[] Key, byte[] IV) {  
-            string plaintext = null;  
-            // Create AesManaged    
-            using(AesManaged aes = new AesManaged()) {  
-                // Create a decryptor    
-                ICryptoTransform decryptor = aes.CreateDecryptor(Key, IV);  
-                // Create the streams used for decryption.    
-                using(MemoryStream ms = new MemoryStream(cipherText)) {  
-                    // Create crypto stream    
-                    using(CryptoStream cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read)) {  
-                        // Read crypto stream    
-                        using(StreamReader reader = new StreamReader(cs))  
-                        plaintext = reader.ReadToEnd();  
-                    }  
-                }  
-            }  
+                this.ValidateKey(keyBytes);
+                this.ValidateInitialisation(initialisationVectorBytes);
 
-            return plaintext;  
-        }     
+                using (FileStream outputFileStream = new FileStream(outputFile, FileMode.Create))
+                {
+                    using (ICryptoTransform encryptor = aes.CreateEncryptor(keyBytes, initialisationVectorBytes))
+                    {
+                        using (CryptoStream outputCryptoStream = new CryptoStream(outputFileStream, encryptor, CryptoStreamMode.Write))
+                        {
+                            using (FileStream inputFileStream = new FileStream(inputFile, FileMode.Open))
+                            {
+                                byte[] buffer = new byte[BufferSizeInBytes];
+                                int count;
+                                while ((count = inputFileStream.Read(buffer, 0, buffer.Length)) != 0)
+                                {
+                                    outputCryptoStream.Write(buffer, 0, count);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
+        public void DecryptFile(string inputFile, string outputFile, string key, string initialisationVector)
+        {
+            using (RijndaelManaged aes = new RijndaelManaged())
+            {
+                byte[] keyBytes = ASCIIEncoding.UTF8.GetBytes(key);
+                byte[] initialisationVectorBytes = ASCIIEncoding.UTF8.GetBytes(initialisationVector);
+
+                this.ValidateKey(keyBytes);
+                this.ValidateInitialisation(initialisationVectorBytes);
+
+                using (FileStream inputFileStream = new FileStream(inputFile, FileMode.Open))
+                {
+                    using (FileStream outputFileStream = new FileStream(outputFile, FileMode.Create))
+                    {
+                        using (ICryptoTransform decryptor = aes.CreateDecryptor(keyBytes, initialisationVectorBytes))
+                        {
+                            using (CryptoStream inputCryptoStream = new CryptoStream(inputFileStream, decryptor, CryptoStreamMode.Read))
+                            {
+                                byte[] buffer = new byte[BufferSizeInBytes];
+                                int count;
+                                while ((count = inputCryptoStream.Read(buffer, 0, buffer.Length)) != 0)
+                                {
+                                    outputFileStream.Write(buffer, 0, count);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void ValidateKey(byte[] key)
+        {
+            if (key.Length == RequiredKeyLengthInBytes)
+            {
+                return;
+            }
+            throw new ArgumentException(string.Format("Please use a key length of {0} bytes ({1} bits)", RequiredKeyLengthInBytes, RequiredKeyLengthInBytes * 8));
+        }
+
+        private void ValidateInitialisation(byte[] initialisationVector)
+        {
+            if (initialisationVector.Length == RequiredInitialisationVectorLengthInBytes)
+            {
+                return;
+            }
+            throw new ArgumentException(string.Format("Please use an initialisation vector length of {0} bytes ({1} bits)", RequiredInitialisationVectorLengthInBytes, RequiredInitialisationVectorLengthInBytes * 8));
+        }
     }
 }
