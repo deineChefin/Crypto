@@ -1,17 +1,20 @@
+using System.Numerics;
+
 public struct RSAKey
 {
-    public RSAKey(int e, int d, int N){
-        this.PrivateKey = d; 
-        this.EPubKey = e; 
-        this.NPubKey = N; 
+    public RSAKey(BigInteger e, BigInteger d, BigInteger N)
+    {
+        this.PrivateKey = d;
+        this.EPubKey = e;
+        this.NPubKey = N;
     }
 
-    public int PrivateKey {get; }
-    public int EPubKey {get; }
-    public int NPubKey {get; }
+    public BigInteger PrivateKey { get; }
+    public BigInteger EPubKey { get; }
+    public BigInteger NPubKey { get; }
 
-    public void print(){
-        System.Console.WriteLine("private key (d): {0}", this.PrivateKey);
-        System.Console.WriteLine("public key (e, N): {0}, {1}", this.EPubKey, this.NPubKey);
+    public override string ToString()
+    {
+        return $"private key (d): {this.PrivateKey}, public key (e): {this.EPubKey}, Modulus (N): {this.NPubKey}";
     }
 }
