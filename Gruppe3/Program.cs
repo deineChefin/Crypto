@@ -9,6 +9,7 @@ namespace Gruppe3
         public static void Main(string[] args)
         {
             RSAKey key = RSA.generateRSAKey(); 
+            // RSAKey key = new RSAKey(79, 127, 201);
             Console.WriteLine(key);
             RSA rsa = new RSA(key);
             string pathInput = @"C:\Users\carin\OneDrive\Desktop\laRSA.txt";
@@ -18,7 +19,7 @@ namespace Gruppe3
             {
                 Console.WriteLine(@"
 Gruppe 3 (Aschauer, Fraißl, Stadler, Sutrich)
-===============================================
+=============================================
 1) asymmetrische Verschlüsselung (RSA)
 2) asymmetrische Entschlüsselung (RSA)
 3) symmetrische Verschlüsselung (AES)
@@ -32,15 +33,15 @@ Auswahl: ");
                     case ConsoleKey.D1:
                         // pathInput = @"C:\Users\carin\OneDrive\Desktop\test.txt"; 
                         // pathOutput = @"C:\temp\Crypto\Gruppe3\gruppe3-enc.txt"; 
-                        pathInput = Program.getFilepath("input");
-                        pathOutput = Program.getFilepath("output"); 
+                        pathInput = Program.getFilepath("zu verschlüssende Datei");
+                        pathOutput = Program.getFilepath("verschlüsselte Datei"); 
                         rsa.start(pathInput, pathOutput, RSA.Mode.ENCRYPT);
                         break;
                     case ConsoleKey.D2:
                         // pathInput = @"C:\temp\Crypto\Gruppe3\gruppe3-enc.txt"; 
                         // pathOutput = @"C:\temp\Crypto\Gruppe3\gruppe3-dec.txt";  
-                        pathInput = Program.getFilepath("input");
-                        pathOutput = Program.getFilepath("output"); 
+                        pathInput = Program.getFilepath("zu entschlüssende Datei");
+                        pathOutput = Program.getFilepath("entschlüsselte Datei"); 
                         // System.Console.WriteLine(key);
                         rsa.start(pathInput, pathOutput, RSA.Mode.DECRYPT);
                         break;
@@ -89,12 +90,14 @@ Auswahl: ");
             string path = String.Empty;
             while (!File.Exists(path))
             {
-                System.Console.WriteLine("Please enter the complete file path for {0}: ", goal);
+                System.Console.WriteLine("Pfad für {0} eingeben: ", goal);
                 path = Console.ReadLine();
 
                 if (File.Exists(path))
                 {
                     return path;
+                } else {
+                    System.Console.WriteLine("Die angegebene Datei existiert nicht.");
                 }
             }
             return path;

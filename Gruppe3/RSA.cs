@@ -17,7 +17,7 @@ namespace Gruppe3
         private static readonly Random random = new Random();
         public RSAKey Key { get; }
 
-        public RSA(RSAKey key)
+        public RSA (RSAKey key)
         {
             this.Key = key;
         }
@@ -68,8 +68,8 @@ namespace Gruppe3
         public static RSAKey generateRSAKey()
         {
             // to be sure p and q are not the same with different ranges (incl. values)
-            int q = RSA.getRandomPrimenumber(3, 10);
-            int p = RSA.getRandomPrimenumber(11, 25);
+            int q = RSA.getRandomPrimenumber(3, 50);
+            int p = RSA.getRandomPrimenumber(51, 100);
             int N = p * q;
             int phiN = (p - 1) * (q - 1); // eulers phi function 
             int e = 0;
@@ -139,15 +139,13 @@ namespace Gruppe3
         /**
             private key = d = (1 % phiN) / e
             extended gcd
-            calculates the greatest common divisor g of two numbers a and b 
-            and additionally the coefficients u and v of a representation of g as an integer linear combination
-            a = e, n = phiN 
+            calculates the greatest common divisor x of two numbers a and n 
         */
         public static int modInverse(int a, int n)
         {
             int n0 = n;
-            int a0 = a;
-            int y = 0, x = 1;
+            int y = 0;
+            int x = 1;
 
             if (n == 1)
                 return 0;
@@ -231,6 +229,7 @@ namespace Gruppe3
             List<BigInteger> allIntegers = new List<BigInteger>();
             List<byte> bytesHelper = new List<byte>(bytes);
 
+            // read every block in the padding lenght 
             for (int i = 0; i < bytesHelper.Count; i += paddingLength)
             {
                 BigInteger newInteger = new BigInteger(bytesHelper.GetRange(i, paddingLength).ToArray(), isBigEndian: true);
