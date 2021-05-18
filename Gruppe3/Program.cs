@@ -65,10 +65,9 @@ Auswahl: ");
                         break;
                     case ConsoleKey.D5:
                         MD5 md5 = new MD5();
-                        md5.print();
-                        Console.WriteLine("\n" + "Text eingeben, der mit MD5-Algorithmus gehasht werden soll: ");
+                        Console.WriteLine("\n" + "Dateipfad angeben, von der eine MD5-Checksumme gemacht werden soll: ");
                         string input = Console.ReadLine();
-                        md5.HashMD5(input);
+                        md5.hash_file(input);
                         break;
                     case ConsoleKey.Escape:
                         Console.WriteLine("Auf Wiedersehen!");

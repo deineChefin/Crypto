@@ -1,5 +1,8 @@
 using System;
 using System.Text;
+using System.IO;  
+using System.Threading;
+
 namespace Gruppe3
 {
     public class MD5
@@ -8,20 +11,15 @@ namespace Gruppe3
         // https://referencesource.microsoft.com/#System.Workflow.Runtime/MD5HashHelper.cs,5a97802b6014fccc
 
         /*
-        Status 21 April:
-            - hashen funktioniert irgendwie, ist interessant, aber noch weit nicht fertig oder richtig.. - ThomasSt
-        */
-
-        /*
         MD5 implementation in linux kernel
         https://github.com/torvalds/linux/blob/master/crypto/md5.c
         */
 
-        public void HashMD5(string input) {
-            byte[] input_bytes = Encoding.ASCII.GetBytes(input);
-            byte[] hashed = ComputeHash(input_bytes);
-            string output_string = Encoding.ASCII.GetString(hashed);
-            Console.WriteLine("Your MD5 hashed data is:\n" + output_string);
+        public void hash_file(string path) {
+                byte[] hashed = ComputeHash(File.ReadAllBytes(path));
+                string hex = BitConverter.ToString(hashed).Replace("-", string.Empty);
+                Console.WriteLine("\n\tHier ist Ihr Hash:\n\n" + hex);
+                Thread.Sleep(2000);
         }
 
         public static byte[] ComputeHash(byte[] buffer)
@@ -133,10 +131,6 @@ namespace Gruppe3
         }
 
 
-        public void print()
-        {
-            Console.WriteLine("2) Hashing (MD5)");          
-        }
         
     }
 }
