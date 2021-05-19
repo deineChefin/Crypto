@@ -8,8 +8,8 @@ namespace Gruppe3
     {
         public static void Main(string[] args)
         {
-            RSAKey key = RSA.generateRSAKey(); 
-            // RSAKey key = new RSAKey(79, 127, 201);
+            RSAKey key = RSA.generateRSAKey(); // Hier passieren Fehler, leider keine Erfolge beim Debugging 
+            // RSAKey key = new RSAKey(79, 127, 201); // mit diesem Key geht ver- und entschlüsseln 
             Console.WriteLine(key);
             RSA rsa = new RSA(key);
             string pathInput = @"C:\Users\carin\OneDrive\Desktop\laRSA.txt";
@@ -33,14 +33,15 @@ Auswahl: ");
                     case ConsoleKey.D1:
                         // pathInput = @"C:\Users\carin\OneDrive\Desktop\test.txt"; 
                         // pathOutput = @"C:\temp\Crypto\Gruppe3\gruppe3-enc.txt"; 
-                        pathInput = Program.getFilepath("zu verschlüssende Datei");
+                        // params filepaht, bool must not exist 
+                        pathInput = Program.getFilepath("zu verschlüssende Datei", true);
                         pathOutput = Program.getFilepath("verschlüsselte Datei"); 
                         rsa.start(pathInput, pathOutput, RSA.Mode.ENCRYPT);
                         break;
                     case ConsoleKey.D2:
                         // pathInput = @"C:\temp\Crypto\Gruppe3\gruppe3-enc.txt"; 
                         // pathOutput = @"C:\temp\Crypto\Gruppe3\gruppe3-dec.txt";  
-                        pathInput = Program.getFilepath("zu entschlüssende Datei");
+                        pathInput = Program.getFilepath("zu entschlüssende Datei", true);
                         pathOutput = Program.getFilepath("entschlüsselte Datei"); 
                         // System.Console.WriteLine(key);
                         rsa.start(pathInput, pathOutput, RSA.Mode.DECRYPT);
@@ -81,13 +82,12 @@ Auswahl: ");
         }
 
         /**
-            if the default path (for testing) doesn't exit 
-            check if the file exists 
+            check if the file exists or if the path must not exist 
         */
-        private static string getFilepath(string goal)
+        private static string getFilepath(string goal, bool mustExist = false)
         {
             string path = String.Empty;
-            while (!File.Exists(path))
+            do
             {
                 System.Console.WriteLine("Pfad für {0} eingeben: ", goal);
                 path = Console.ReadLine();
@@ -95,11 +95,12 @@ Auswahl: ");
                 if (File.Exists(path))
                 {
                     return path;
-                } else {
+                } else if (mustExist) {
                     System.Console.WriteLine("Die angegebene Datei existiert nicht.");
+                } else if (!mustExist) {
+                   return path; 
                 }
-            }
-            return path;
+            } while (true);
         }
     }
 }
