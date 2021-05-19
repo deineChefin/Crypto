@@ -48,18 +48,18 @@ Auswahl: ");
                     case ConsoleKey.D3:
                         AES aesEnc = new AES();
                         Console.WriteLine("\n" + "Dateipfad eingeben, der mit AES verschlüsselt werden soll: ");
-                        string fileToEncrypt = Console.ReadLine();  // TODO: exception handling
+                        string fileToEncrypt = Console.ReadLine();
                         string fileEncrypted = Path.ChangeExtension(fileToEncrypt, ".enc");
-                        aesEnc.EncryptFile(fileToEncrypt, fileEncrypted, "23432343234323432343234323432343", "1234123412341234");  // 32-bit key and 16-bit IV
+                        aesEnc.EncryptFile(fileToEncrypt, fileEncrypted, "TESTTESTTESTTESTTESTTESTTESTTEST", "0123456789ABCDEF");  // 32-bit key and 16-bit IV
                         Console.WriteLine("\n" + "Ihre mit AES verschlüsselte Datei wurde in " + fileEncrypted + " gespeichert.");
                         Thread.Sleep(2000);
                         break;
                     case ConsoleKey.D4:
                         AES aesDec = new AES();
                         Console.WriteLine("\n" + "Dateipfad eingeben, der mit AES entschlüsselt werden soll: ");
-                        string fileToDecrypt = Console.ReadLine();  // TODO: exception handling
+                        string fileToDecrypt = Console.ReadLine();
                         string fileDecrypted = Path.ChangeExtension(fileToDecrypt, ".dec");
-                        aesDec.DecryptFile(fileToDecrypt, fileDecrypted, "23432343234323432343234323432343", "1234123412341234");  // 32-bit key and 16-bit IV
+                        aesDec.DecryptFile(fileToDecrypt, fileDecrypted, "TESTTESTTESTTESTTESTTESTTESTTEST", "0123456789ABCDEF");  // 32-bit key and 16-bit IV
                         Console.WriteLine("\n" + "Ihre mit AES entschlüsselte Datei wurde in " + fileDecrypted + " gespeichert.");
                         Thread.Sleep(2000);
                         break;
